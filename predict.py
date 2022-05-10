@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#!/usr/bin/env python3
 
 import sys
 from os import system
@@ -9,7 +9,7 @@ from dataset import *
 from codemaps import *
 import evaluator
 
-## --------- Entity extractor ----------- 
+## --------- Entity extractor -----------
 ## -- Extract drug entities from given text and return them as
 ## -- a list of dictionaries with keys "offset", "text", and "type"
 
@@ -23,11 +23,11 @@ def output_interactions(data, preds, outfile) :
       e2 = exmp['e2']
       if tag!='null' :
          print(sid, e1, e2, tag, sep="|", file=outf)
-            
+
    outf.close()
 
-   
-## --------- MAIN PROGRAM ----------- 
+
+## --------- MAIN PROGRAM -----------
 ## --
 ## -- Usage:  baseline-NER.py target-dir
 ## --

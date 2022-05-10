@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 BASEDIR=$(readlink -f PATH_TO_DDI_RESOURCES)
 
@@ -21,7 +21,7 @@ fi
 
 if [[ "$*" == *"predict"* ]]; then
    rm -f devel.stats devel.out
-   python3 predict.py model devel.pck devel.out 
+   python3 predict.py model devel.pck devel.out
    python3 $BASEDIR/util/evaluator.py DDI $BASEDIR/data/devel devel.out | tee devel.stats
 fi
 

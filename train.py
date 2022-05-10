@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#!/usr/bin/env python3
 
 
 import sys
@@ -22,26 +22,26 @@ def build_network(idx) :
    # word input layer & embeddings
    inptW = Input(shape=(max_len,))
    embW = Embedding(input_dim=n_words, output_dim=100,
-                      input_length=max_len, mask_zero=False)(inptW)  
+                      input_length=max_len, mask_zero=False)(inptW)
 
    conv = Conv1D(filters=30, kernel_size=2, strides=1, activation='relu', padding='same')(embW)
    flat= Flatten()(conv)
-   
+
    out = Dense(n_labels, activation='softmax')(flat)
 
    model = Model(inptW, out)
    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
    return model
-   
 
 
-## --------- MAIN PROGRAM ----------- 
+
+## --------- MAIN PROGRAM -----------
 ## --
 ## -- Usage:  train.py ../data/Train ../data/Devel  modelname
 ## --
 
-## --------- MAIN PROGRAM ----------- 
+## --------- MAIN PROGRAM -----------
 ## --
 ## -- Usage:  train.py ../data/Train ../data/Devel  modelname
 ## --
@@ -75,7 +75,7 @@ Yv = codes.encode_labels(valdata)
 # train model
 with redirect_stdout(sys.stderr) :
    model.fit(Xt, Yt, batch_size=32, epochs=10, validation_data=(Xv,Yv), verbose=1)
-   
+
 # save model and indexs
 model.save(modelname)
 codes.save(modelname)
