@@ -9,7 +9,7 @@ from dataset import *
 #   e.g.  ./parse_data.py ../../data/train train
 
 datadir = sys.argv[1]
-filename =  sys.argv[2]
+filename = sys.argv[2]
 
 data = Dataset(datadir)
 data.save(filename)

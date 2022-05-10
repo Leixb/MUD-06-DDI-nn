@@ -3,7 +3,7 @@
 import sys
 from os import system
 
-from tensorflow.keras.models import Model,load_model
+from tensorflow.keras.models import Model, load_model
 
 from dataset import *
 from codemaps import *
@@ -13,18 +13,19 @@ import evaluator
 ## -- Extract drug entities from given text and return them as
 ## -- a list of dictionaries with keys "offset", "text", and "type"
 
-def output_interactions(data, preds, outfile) :
 
-   #print(testdata[0])
-   outf = open(outfile, 'w')
-   for exmp,tag in zip(data.sentences(),preds) :
-      sid = exmp['sid']
-      e1 = exmp['e1']
-      e2 = exmp['e2']
-      if tag!='null' :
-         print(sid, e1, e2, tag, sep="|", file=outf)
+def output_interactions(data, preds, outfile):
 
-   outf.close()
+    # print(testdata[0])
+    outf = open(outfile, "w")
+    for exmp, tag in zip(data.sentences(), preds):
+        sid = exmp["sid"]
+        e1 = exmp["e1"]
+        e2 = exmp["e2"]
+        if tag != "null":
+            print(sid, e1, e2, tag, sep="|", file=outf)
+
+    outf.close()
 
 
 ## --------- MAIN PROGRAM -----------
@@ -49,6 +50,3 @@ Y = [codes.idx2label(np.argmax(s)) for s in Y]
 
 # extract relations
 output_interactions(testdata, Y, outfile)
-
-
-
