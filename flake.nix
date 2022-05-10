@@ -39,6 +39,10 @@
   let
     pkgs = nixpkgs.legacyPackages.${system};
 
+    stanford_corenlp = pkgs.callPackage ./stanford-corenlp.nix { };
+
+    NLTK_DATA = pkgs.callPackage ./nltk_data.nix { collection = "all"; };
+
     # Do NOT use import mach-nix {inherit system;};
     #
     # otherwise mach-nix will not use flakes and pypi-deps-db
@@ -80,11 +84,15 @@
   in
   {
     devShell = pkgs.mkShell {
-      name = "python";
+      name = "python NLTK coreNLP TF";
+
+      STANFORDDIR = "${stanford_corenlp}/share/java";
+
+      inherit NLTK_DATA;
 
       LD_LIBRARY_PATH = "${pkgs.linuxPackages.nvidia_x11}/lib";
 
-      buildInputs = [ python-env ];
+      buildInputs = [ python-env pkgs.jre ];
     };
   });
 }
