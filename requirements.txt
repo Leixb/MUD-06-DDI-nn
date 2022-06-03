@@ -1,5 +1,0 @@
-# Put the project python dependencies here
-keras
-tensorflow
-nltk
-

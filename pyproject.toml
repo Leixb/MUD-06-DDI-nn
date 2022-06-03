@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "06-ddi-nn"
+version = "0.1.0"
+description = ""
+authors = ["LeixB <abone9999@gmail.com>", "Daviidg <davidgilif@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+keras = "^2.9.0"
+nltk = "^3.7"
+numpy = "1.22.3"
+tensorflow = "^2.9.1"
+
+[tool.poetry.dev-dependencies]
+python-language-server = {extras = ["all"], version = "^0.36.2"}
+black = "^22.3.0"
+ipython = "^8.4.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

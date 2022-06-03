@@ -1,84 +1,51 @@
 {
-  description = "Python environment managed with mach-nix and flakes";
+  description = "Python environment managed with poetry and flakes";
 
   inputs = {
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
-    nixpkgs = {
-      url = "github:numtide/nixpkgs-unfree";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
-    };
-
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils = {
       url = "github:numtide/flake-utils";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # use `nix flake lock --update-input pypi-deps-db` to update the pypi database
-    # or `nix flake update` to update all
-    pypi-deps-db = {
-      url = "github:DavHau/pypi-deps-db";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.mach-nix.follows = "mach-nix";
-    };
-
-    mach-nix = {
-      url = "github:bjornfor/mach-nix/adapt-to-make-binary-wrapper";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-      inputs.pypi-deps-db.follows = "pypi-deps-db";
-    };
-
-    # nixConfig.extra-substituters = [ "https://nixpkgs-unfree.cachix.org" ];
-    # nixConfig.extra-trusted-public-keys = [ "nixpkgs-unfree.cachix.org-1:hqvoInulhbV4nJ9yJOEr+4wxhDV4xq2d1DK7S6Nj6rs=" ];
-
   };
-  outputs = { nixpkgs, flake-utils, mach-nix, ...}:
+
+  outputs = { self, nixpkgs, flake-utils, ...}:
 
   flake-utils.lib.eachDefaultSystem (system:
   let
-    pkgs = nixpkgs.legacyPackages.${system};
+    pkgs = import nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
 
     stanford_corenlp = pkgs.callPackage ./stanford-corenlp.nix { };
 
     NLTK_DATA = pkgs.callPackage ./nltk_data.nix { collection = "all"; };
 
-    # Do NOT use import mach-nix {inherit system;};
-    #
-    # otherwise mach-nix will not use flakes and pypi-deps-db
-    # input will not be used:
-    # https://github.com/DavHau/mach-nix/issues/269#issuecomment-841824763
-    mach = mach-nix.lib.${system};
+    python = pkgs.python38;
 
-    python-env = mach.mkPython {
-      # Choose python version
-      python = "python38";
+    overrides = let addBuildInput = { drv, self, super, input }:
+        super.${drv}.overridePythonAttrs ( old: { nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ self.${input} ]; });
+      in pkgs.poetry2nix.overrides.withDefaults (self: super: {
+        traitlets = addBuildInput { drv = "traitlets"; input = "hatchling"; inherit self super; };
+        terminado = addBuildInput { drv = "terminado"; input = "hatchling"; inherit self super; };
+        tensorflow-io-gcs-filesystem = super.tensorflow-io-gcs-filesystem.overridePythonAttrs ( old: { buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.libtensorflow ]; });
+        tensorflow = addBuildInput { drv = "tensorflow"; input = "wheel"; inherit self super; };
+        tensorflow-gpu = addBuildInput { drv = "tensorflow-gpu"; input = "wheel"; inherit self super; };
+        astunparse = addBuildInput { drv = "astunparse"; input = "wheel"; inherit self super; };
 
-      providers.tensorflow = "nixpkgs";
-
-      overridesPost = [(python-self: python-super: {
-        tensorflow = python-super.tensorflow-bin.override {
-          cudaSupport = true;
-          # cudaPackages = with pkgs.cudaPackages; [
-          #   cudnn
-          #   cudatoolkit
-          #   cuda_nvcc
-          #   cuda_cudart
-          # ];
-        };
-      })];
+    });
 
 
-      # Specify python requirements, you can use ./requirements.txt a
-      # string (or a combination of both)
-      requirements = ''
-        ipython
-        black
-        jupyterlab==4.0.0a24
-        bleach==4.1.0
-        python-lsp-server
-        python-language-server[all]
-      '' + (builtins.readFile ./requirements.txt);
+    pyEnv = pkgs.poetry2nix.mkPoetryEnv {
+      projectDir = ./.;
+
+      inherit python overrides;
+      preferWheels = true;
+
+      editablePackageSources = {
+        ddi = ./.;
+      };
     };
 
   in
@@ -90,9 +57,18 @@
 
       inherit NLTK_DATA;
 
-      LD_LIBRARY_PATH = "${pkgs.linuxPackages.nvidia_x11}/lib";
+      LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath (with pkgs.cudaPackages; [
+        pkgs.linuxPackages_latest.nvidia_x11
+        cudatoolkit
+        cudnn
+        libcublas
+        libcufft
+        libcurand
+        libcusolver
+        libcusparse
+      ]);
 
-      buildInputs = [ python-env pkgs.jre ];
+      buildInputs = [ pkgs.cudaPackages.cudatoolkit pyEnv pkgs.jre ];
     };
   });
 }
