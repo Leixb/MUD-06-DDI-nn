@@ -6,6 +6,7 @@ UTIL=./util/
 
 export PYTHONPATH="$UTIL" #Directory of the DDI data
 
+set -e # Abort if something fails
 
 if [[ "$*" == *"parse"* ]]; then
    "$UTIL"/corenlp-server.sh -quiet true -port 9000 -timeout 15000 &
