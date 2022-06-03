@@ -2,9 +2,11 @@
 
 
 import sys
+import os
 import random
 from contextlib import redirect_stdout
 
+from tensorflow.keras.utils import set_random_seed
 from tensorflow.keras import regularizers, Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import (
@@ -70,6 +72,9 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: train.py <trainfile> <validationfile>  <modelname>")
         exit(1)
+
+    set_random_seed(2795991)
+    os.environ['PYTHONHASHSEED'] = str(0)
 
     # directory with files to process
     trainfile = sys.argv[1]

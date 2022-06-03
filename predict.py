@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 
+from tensorflow.keras.utils import set_random_seed
 from tensorflow.keras.models import Model, load_model
 import numpy as np
 
@@ -42,6 +44,9 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage:  predict.py <fname> <datafile> <outfile>")
         sys.exit(1)
+
+    set_random_seed(4567998)
+    os.environ['PYTHONHASHSEED'] = str(0)
 
     fname = sys.argv[1]
     datafile = sys.argv[2]
