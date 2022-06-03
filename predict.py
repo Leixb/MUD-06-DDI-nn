@@ -5,8 +5,8 @@ from os import system
 
 from tensorflow.keras.models import Model, load_model
 
-from dataset import *
-from codemaps import *
+from dataset import Dataset
+from codemaps import Codemaps
 import evaluator
 
 ## --------- Entity extractor -----------

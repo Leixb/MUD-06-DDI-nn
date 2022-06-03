@@ -2,7 +2,7 @@ from os import listdir
 from xml.dom.minidom import parse
 
 import pickle
-from deptree import *
+from util.deptree import deptree
 
 
 class Dataset:

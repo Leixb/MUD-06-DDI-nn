@@ -5,7 +5,7 @@ import numpy as np
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
 
-from dataset import *
+from dataset import Dataset
 
 
 class Codemaps:

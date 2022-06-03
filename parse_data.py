@@ -2,7 +2,7 @@
 
 
 import sys
-from dataset import *
+from dataset import Dataset
 
 # preprocess a dataset with StanfordCore, and store it in a pickle file for later use
 # usage:  ./parse_data.py data-folder filename
