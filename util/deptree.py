@@ -200,8 +200,8 @@ class deptree:
                 entities[e]["start"] <= self.tree.nodes[n]["start"]
                 and self.tree.nodes[n]["end"] <= entities[e]["end"]
             ):
-                return True
-        return False
+                return e
+        return None
 
     # --------------------------------------------------------------
     # get span covered by a subtree rooted at node n
