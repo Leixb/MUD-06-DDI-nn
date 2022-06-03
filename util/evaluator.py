@@ -5,12 +5,10 @@ from os import listdir
 
 from xml.dom.minidom import parse
 
-# --
-# -- auxliary to insert an instance in given instance_set
-# --
-
 
 def add_instance(instance_set, einfo, etype):
+    "auxliary to insert an instance in given instance_set"
+
     instance_set["CLASS"].add(einfo + "|" + etype)
     instance_set["NOCLASS"].add(einfo)
     if etype not in instance_set:
@@ -18,12 +16,9 @@ def add_instance(instance_set, einfo, etype):
     instance_set[etype].add(einfo)
 
 
-# --
-# -- Load entities from XML files in given golddir
-# --
-
-
 def load_gold_NER(golddir):
+    "Load entities from XML files in given golddir"
+
     entities = {"CLASS": set([]), "NOCLASS": set([])}
 
     # process each file in directory
@@ -53,12 +48,9 @@ def load_gold_NER(golddir):
     return entities
 
 
-# --
-# -- Load relations from XML files in given golddir
-# --
-
-
 def load_gold_DDI(golddir):
+    "Load relations from XML files in given golddir"
+
     relations = {"CLASS": set([]), "NOCLASS": set([])}
 
     # process each file in directory
@@ -87,12 +79,9 @@ def load_gold_DDI(golddir):
     return relations
 
 
-# --
-# -- Load entities/relations from given system output file
-# --
-
-
 def load_predicted(task, outfile):
+    "Load entities/relations from given system output file"
+
     predicted = {"CLASS": set([]), "NOCLASS": set([])}
     outf = open(outfile, "r")
     for line in outf.readlines():
@@ -109,12 +98,9 @@ def load_predicted(task, outfile):
     return predicted
 
 
-# --
-# -- Compare given sets and compute tp,fp,fn,P,R,F1
-# --
-
-
 def statistics(gold, predicted, kind):
+    "Compare given sets and compute tp,fp,fn,P,R,F1"
+
     tp = 0
     fp = 0
     nexp = len(gold[kind])
@@ -142,16 +128,13 @@ def statistics(gold, predicted, kind):
     return tp, fp, fn, npred, nexp, P, R, F1
 
 
-# --
-# -- Compute and print statistics table
-# --
-
-
 def row(txt):
     return txt + " " * (17 - len(txt))
 
 
 def print_statistics(gold, predicted):
+    "Compute and print statistics table"
+
     print(row("") + "  tp\t  fp\t  fn\t#pred\t#exp\tP\tR\tF1")
     print(
         "------------------------------------------------------------------------------"
@@ -194,14 +177,12 @@ def print_statistics(gold, predicted):
     )
 
 
-# --
-# -- Evaluates results in outfile comparing them with gold standard in golddir.
-# -- 'task' is either NER or DDI
-# -- This function can be called from any program requesting evaluation.
-# --
-
-
 def evaluate(task, golddir, outfile):
+    """
+    Evaluates results in outfile comparing them with gold standard in golddir.
+    'task' is either NER or DDI
+    This function can be called from any program requesting evaluation.
+    """
 
     if task == "NER":
         # get set of expected entities in the whole golddir

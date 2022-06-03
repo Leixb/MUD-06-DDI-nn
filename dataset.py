@@ -6,8 +6,11 @@ from util.deptree import deptree
 
 
 class Dataset:
-    ##  Parse all XML files in given dir, and load a list of sentences.
-    ##  Each sentence is a list of tuples (word, start, end, tag)
+    """
+    Parse all XML files in given dir, and load a list of sentences.
+    Each sentence is a list of tuples (word, start, end, tag)
+    """
+
     def __init__(self, filename):
 
         if filename[-4:] == ".pck":
@@ -121,12 +124,12 @@ class Dataset:
                             }
                         )
 
-    ## ---- iterator to get sentences in the data set
     def save(self, filename):
+        "iterator to get sentences in the data set"
         with open(filename + ".pck", "wb") as pf:
             pickle.dump(self.data, pf)
 
-    ## ---- iterator to get sentences in the data set
     def sentences(self):
+        "iterator to get sentences in the data set"
         for s in self.data:
             yield s

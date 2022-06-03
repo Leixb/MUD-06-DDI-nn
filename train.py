@@ -20,8 +20,8 @@ from tensorflow.keras.layers import (
     LSTM,
 )
 
-from dataset import *
-from codemaps import *
+from dataset import Dataset
+from codemaps import Codemaps
 
 
 def build_network(idx):
@@ -52,46 +52,47 @@ def build_network(idx):
     return model
 
 
-## --------- MAIN PROGRAM -----------
-## --
-## -- Usage:  train.py ../data/Train ../data/Devel  modelname
-## --
+# --------- MAIN PROGRAM -----------
+# --
+# -- Usage:  train.py ../data/Train ../data/Devel  modelname
+# --
 
-## --------- MAIN PROGRAM -----------
-## --
-## -- Usage:  train.py ../data/Train ../data/Devel  modelname
-## --
+# --------- MAIN PROGRAM -----------
+# --
+# -- Usage:  train.py ../data/Train ../data/Devel  modelname
+# --
 
+if __name__ == "__main__":
 
-# directory with files to process
-trainfile = sys.argv[1]
-validationfile = sys.argv[2]
-modelname = sys.argv[3]
+    # directory with files to process
+    trainfile = sys.argv[1]
+    validationfile = sys.argv[2]
+    modelname = sys.argv[3]
 
-# load train and validation data
-traindata = Dataset(trainfile)
-valdata = Dataset(validationfile)
+    # load train and validation data
+    traindata = Dataset(trainfile)
+    valdata = Dataset(validationfile)
 
-# create indexes from training data
-max_len = 150
-suf_len = 5
-codes = Codemaps(traindata, max_len)
+    # create indexes from training data
+    max_len = 150
+    suf_len = 5
+    codes = Codemaps(traindata, max_len)
 
-# build network
-model = build_network(codes)
-with redirect_stdout(sys.stderr):
-    model.summary()
+    # build network
+    model = build_network(codes)
+    with redirect_stdout(sys.stderr):
+        model.summary()
 
-# encode datasets
-Xt = codes.encode_words(traindata)
-Yt = codes.encode_labels(traindata)
-Xv = codes.encode_words(valdata)
-Yv = codes.encode_labels(valdata)
+    # encode datasets
+    Xt = codes.encode_words(traindata)
+    Yt = codes.encode_labels(traindata)
+    Xv = codes.encode_words(valdata)
+    Yv = codes.encode_labels(valdata)
 
-# train model
-with redirect_stdout(sys.stderr):
-    model.fit(Xt, Yt, batch_size=32, epochs=10, validation_data=(Xv, Yv), verbose=1)
+    # train model
+    with redirect_stdout(sys.stderr):
+        model.fit(Xt, Yt, batch_size=32, epochs=10, validation_data=(Xv, Yv), verbose=1)
 
-# save model and indexs
-model.save(modelname)
-codes.save(modelname)
+    # save model and indexs
+    model.save(modelname)
+    codes.save(modelname)

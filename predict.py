@@ -4,17 +4,20 @@ import sys
 from os import system
 
 from tensorflow.keras.models import Model, load_model
+import numpy as np
 
 from dataset import Dataset
 from codemaps import Codemaps
 import evaluator
 
-## --------- Entity extractor -----------
-## -- Extract drug entities from given text and return them as
-## -- a list of dictionaries with keys "offset", "text", and "type"
-
 
 def output_interactions(data, preds, outfile):
+    """
+    Entity extractor
+
+    Extract drug entities from given text and return them as
+    a list of dictionaries with keys "offset", "text", and "type"
+    """
 
     # print(testdata[0])
     outf = open(outfile, "w")
@@ -28,25 +31,27 @@ def output_interactions(data, preds, outfile):
     outf.close()
 
 
-## --------- MAIN PROGRAM -----------
-## --
-## -- Usage:  baseline-NER.py target-dir
-## --
-## -- Extracts Drug NE from all XML files in target-dir
-## --
+# --------- MAIN PROGRAM -----------
+# --
+# -- Usage:  baseline-NER.py target-dir
+# --
+# -- Extracts Drug NE from all XML files in target-dir
+# --
 
-fname = sys.argv[1]
-datafile = sys.argv[2]
-outfile = sys.argv[3]
+if __name__ == "__main__":
 
-model = load_model(fname)
-codes = Codemaps(fname)
+    fname = sys.argv[1]
+    datafile = sys.argv[2]
+    outfile = sys.argv[3]
 
-testdata = Dataset(datafile)
-X = codes.encode_words(testdata)
+    model = load_model(fname)
+    codes = Codemaps(fname)
 
-Y = model.predict(X)
-Y = [codes.idx2label(np.argmax(s)) for s in Y]
+    testdata = Dataset(datafile)
+    X = codes.encode_words(testdata)
 
-# extract relations
-output_interactions(testdata, Y, outfile)
+    Y = model.predict(X)
+    Y = [codes.idx2label(np.argmax(s)) for s in Y]
+
+    # extract relations
+    output_interactions(testdata, Y, outfile)

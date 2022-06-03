@@ -9,9 +9,11 @@ from dataset import Dataset
 
 
 class Codemaps:
-    # --- constructor, create mapper either from training data, or
-    # --- loading codemaps from given file
     def __init__(self, data, maxlen=None):
+        """
+        constructor, create mapper either from training data, or loading codemaps
+        from given file
+        """
 
         if isinstance(data, Dataset) and maxlen is not None:
             self.__create_indexs(data, maxlen)
@@ -23,10 +25,13 @@ class Codemaps:
             print("codemaps: Invalid or missing parameters in constructor")
             exit()
 
-    # --------- Create indexs from training data
-    # Extract all words and labels in given sentences and
-    # create indexes to encode them as numbers when needed
     def __create_indexs(self, data, maxlen):
+        """
+        Create indexes from training data
+
+        Extract all words and labels in given sentences and
+        create indexes to encode them as numbers when needed
+        """
 
         self.maxlen = maxlen
         words = set([])
@@ -61,8 +66,9 @@ class Codemaps:
 
         self.label_index = {t: i for i, t in enumerate(sorted(list(labels)))}
 
-    ## --------- load indexs -----------
     def __load(self, name):
+        "load indexes"
+
         self.maxlen = 0
         self.word_index = {}
         self.lc_word_index = {}
@@ -86,8 +92,9 @@ class Codemaps:
                 elif t == "LABEL":
                     self.label_index[k] = int(i)
 
-    ## ---------- Save model and indexs ---------------
     def save(self, name):
+        "Save model and indexes"
+
         # save indexes
         with open(name + ".idx", "w") as f:
             print("MAXLEN", self.maxlen, "-", file=f)
@@ -102,20 +109,22 @@ class Codemaps:
             for key in self.pos_index:
                 print("POS", key, self.pos_index[key], file=f)
 
-    ## --------- get code for key k in given index, or code for unknown if not found
     def __code(self, index, k):
+        "get code for key k in given index, or code for unknown if not found"
+
         return index[k] if k in index else index["UNK"]
 
-    ## --------- encode and pad all sequences of given key (form, lemma, etc) -----------
     def __encode_and_pad(self, data, index, key):
+        "encode and pad all sequences of given key (form, lemma, etc)"
+
         X = [[self.__code(index, w[key]) for w in s["sent"]] for s in data.sentences()]
         X = pad_sequences(
             maxlen=self.maxlen, sequences=X, padding="post", value=index["PAD"]
         )
         return X
 
-    ## --------- encode X from given data -----------
     def encode_words(self, data):
+        "encode X from given data"
 
         # encode and pad sentence words
         Xw = self.__encode_and_pad(data, self.word_index, "form")
@@ -130,47 +139,49 @@ class Codemaps:
         # return [Xw,Xlw,Xl,Xp] (or just the subset expected by the NN inputs)
         return Xw
 
-    ## --------- encode Y from given data -----------
     def encode_labels(self, data):
+        "encode Y from given data"
+
         # encode and pad sentence labels
         Y = [self.label_index[s["type"]] for s in data.sentences()]
         Y = [to_categorical(i, num_classes=self.get_n_labels()) for i in Y]
         return np.array(Y)
 
-    ## -------- get word index size ---------
     def get_n_words(self):
+        "get word index size"
         return len(self.word_index)
 
-    ## -------- get word index size ---------
     def get_n_lc_words(self):
+        "get word index size"
         return len(self.lc_word_index)
 
-    ## -------- get label index size ---------
     def get_n_labels(self):
+        "get label index size"
         return len(self.label_index)
 
-    ## -------- get label index size ---------
     def get_n_lemmas(self):
+        "get label index size"
         return len(self.lemma_index)
 
-    ## -------- get label index size ---------
     def get_n_pos(self):
+        "get label index size"
         return len(self.pos_index)
 
-    ## -------- get index for given word ---------
     def word2idx(self, w):
+        "get index for given word"
         return self.word_index[w]
 
-    ## -------- get index for given word ---------
     def lcword2idx(self, w):
+        "get index for given word"
+
         return self.lc_word_index[w]
 
-    ## -------- get index for given label --------
     def label2idx(self, l):
+        "get index for given label"
         return self.label_index[l]
 
-    ## -------- get label name for given index --------
     def idx2label(self, i):
+        "get label name for given index"
         for l in self.label_index:
             if self.label_index[l] == i:
                 return l
