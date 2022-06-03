@@ -13,7 +13,7 @@ class Dataset:
 
     def __init__(self, filename):
 
-        if filename[-4:] == ".pck":
+        if filename.endswith(".pck"):
             # parameter is a pickle file, load it
             with open(filename, "rb") as pf:
                 self.data = pickle.load(pf)
@@ -125,8 +125,12 @@ class Dataset:
                         )
 
     def save(self, filename):
-        "iterator to get sentences in the data set"
-        with open(filename + ".pck", "wb") as pf:
+        "save data set to a pickle file"
+
+        if not filename.endswith(".pck"):
+            filename += ".pck"
+
+        with open(filename, "wb") as pf:
             pickle.dump(self.data, pf)
 
     def sentences(self):
