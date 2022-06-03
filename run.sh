@@ -8,6 +8,11 @@ export PYTHONPATH="$UTIL" #Directory of the DDI data
 
 set -e # Abort if something fails
 
+if [[ "$#" == "0" ]]; then
+    # if no arguments are given, run all steps
+    set -- parse train predict test
+fi
+
 if [[ "$*" == *"parse"* ]]; then
    "$UTIL"/corenlp-server.sh -quiet true -port 9000 -timeout 15000 &
    sleep 1
