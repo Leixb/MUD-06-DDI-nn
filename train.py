@@ -64,6 +64,10 @@ def build_network(idx):
 
 if __name__ == "__main__":
 
+    if len(sys.argv) != 4:
+        print("Usage: train.py <trainfile> <validationfile>  <modelname>")
+        exit(1)
+
     # directory with files to process
     trainfile = sys.argv[1]
     validationfile = sys.argv[2]

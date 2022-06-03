@@ -8,8 +8,14 @@ from dataset import Dataset
 # usage:  ./parse_data.py data-folder filename
 #   e.g.  ./parse_data.py ../../data/train train
 
-datadir = sys.argv[1]
-filename = sys.argv[2]
+if __name__ == "__main__":
+    if len(sys.argv) != 3:
+        print("usage: ./parse_data.py <data-folder> <filename>")
+        sys.exit(1)
 
-data = Dataset(datadir)
-data.save(filename)
+    datadir = sys.argv[1]
+    filename = sys.argv[2]
+
+    data = Dataset(datadir)
+    data.save(filename)
+

@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) != 4:
         print("\n  Usage: evaluator.py (NER|DDI) golddir outfile\n")
-        exit()
+        sys.exit(1)
 
     task = sys.argv[1]
     golddir = sys.argv[2]

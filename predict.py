@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-from os import system
 
 from tensorflow.keras.models import Model, load_model
 import numpy as np
@@ -39,6 +38,10 @@ def output_interactions(data, preds, outfile):
 # --
 
 if __name__ == "__main__":
+
+    if len(sys.argv) != 4:
+        print("Usage:  predict.py <fname> <datafile> <outfile>")
+        sys.exit(1)
 
     fname = sys.argv[1]
     datafile = sys.argv[2]
