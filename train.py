@@ -37,9 +37,12 @@ def build_network(codes):
         input_dim=n_words, output_dim=100, input_length=max_len, mask_zero=False
     )(inptW)
 
+    lstm = Bidirectional(LSTM(units=100, return_sequences=True))(embW)
+
     conv = Conv1D(
         filters=30, kernel_size=2, strides=1, activation="relu", padding="same"
-    )(embW)
+    )(lstm)
+
     flat = Flatten()(conv)
 
     out = Dense(n_labels, activation="softmax")(flat)
