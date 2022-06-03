@@ -3,6 +3,7 @@ model
 *.out
 *.stats
 *.pck
+*.idx
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
