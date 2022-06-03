@@ -36,6 +36,7 @@
 
     });
 
+    pylsp_alias = pkgs.writeScriptBin "pylsp" ''pyls "$@"'';
 
     pyEnv = pkgs.poetry2nix.mkPoetryEnv {
       projectDir = ./.;
@@ -68,7 +69,7 @@
         libcusparse
       ]);
 
-      buildInputs = [ pkgs.cudaPackages.cudatoolkit pyEnv pkgs.jre ];
+      buildInputs = [ pkgs.cudaPackages.cudatoolkit pyEnv pylsp_alias pkgs.jre ];
     };
   });
 }
