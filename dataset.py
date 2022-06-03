@@ -108,9 +108,9 @@ class Dataset:
                                     "etype": entities[tk_ent]["type"],
                                 }
 
-                            if tk_ent == None or tk_ent not in seen:
+                            if tk_ent is None or tk_ent not in seen:
                                 sent.append(token)
-                            if tk_ent != None:
+                            if tk_ent is not None:
                                 seen.add(tk_ent)
 
                         # resulting vector
@@ -131,5 +131,4 @@ class Dataset:
 
     def sentences(self):
         "iterator to get sentences in the data set"
-        for s in self.data:
-            yield s
+        return iter(self.data)
