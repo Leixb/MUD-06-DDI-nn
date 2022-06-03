@@ -24,7 +24,7 @@ from dataset import Dataset
 from codemaps import Codemaps
 
 
-def build_network(idx):
+def build_network(codes):
 
     # sizes
     n_words = codes.get_n_words()
