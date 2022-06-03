@@ -7,6 +7,7 @@ dep_parser = CoreNLPDependencyParser(url="http://localhost:9000")
 
 DEBUG = os.environ.get("DEBUG", False)
 
+
 class deptree:
 
     # --------------------------------------------------------------
@@ -247,8 +248,7 @@ class deptree:
         if n != 0:
             print(d * "   ", end="", **kwargs)
             print(
-                self.get_rel(n) + "(" + self.get_lemma(n) +
-                "_" + self.get_tag(n) + ")",
+                self.get_rel(n) + "(" + self.get_lemma(n) + "_" + self.get_tag(n) + ")",
                 **kwargs
             )
         for c in self.get_children(n):

@@ -13,7 +13,8 @@ if [[ "$*" == *"parse"* ]]; then
 
    python3 parse_data.py "$BASEDIR"/data/train train.pck
    python3 parse_data.py "$BASEDIR"/data/devel devel.pck
-   kill `cat /tmp/corenlp-server.running`
+   python3 parse_data.py "$BASEDIR"/data/test test.pck
+   kill "$(cat /tmp/corenlp-server.running)"
 fi
 
 if [[ "$*" == *"train"* ]]; then
@@ -27,4 +28,9 @@ if [[ "$*" == *"predict"* ]]; then
    python3 "$UTIL"/evaluator.py DDI "$BASEDIR"/data/devel devel.out | tee devel.stats
 fi
 
+if [[ "$*" == *"test"* ]]; then
+   rm -f test.stats test.out
+   python3 predict.py model test.pck test.out
+   python3 "$UTIL"/evaluator.py DDI "$BASEDIR"/data/test test.out | tee test.stats
+fi
 

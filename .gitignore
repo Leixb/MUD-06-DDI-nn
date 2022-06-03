@@ -1,4 +1,7 @@
 .direnv
+*.out
+*.stats
+*.pck
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
