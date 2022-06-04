@@ -9,7 +9,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, ...}:
+  outputs = { self, nixpkgs, flake-utils }:
 
   flake-utils.lib.eachDefaultSystem (system:
   let
@@ -17,6 +17,8 @@
       inherit system;
       config.allowUnfree = true;
     };
+
+    lib = pkgs.lib;
 
     stanford_corenlp = pkgs.callPackage ./stanford-corenlp.nix { };
 
@@ -35,6 +37,8 @@
         astunparse = addBuildInput { drv = "astunparse"; input = "wheel"; inherit self super; };
 
     });
+
+    useCuda = true;
 
     pyEnv = pkgs.poetry2nix.mkPoetryEnv {
       projectDir = ./.;
@@ -56,7 +60,11 @@
 
       inherit NLTK_DATA;
 
-      LD_LIBRARY_PATH = pkgs.lib.strings.makeLibraryPath (with pkgs.cudaPackages; [
+      # Set tensorflow log level to ERROR to avoid spamming the logs
+      # with CUDA warnings.
+      TF_CPP_MIN_LOG_LEVEL = if useCuda then 3 else 0;
+
+      LD_LIBRARY_PATH = lib.optionals useCuda (lib.makeLibraryPath (with pkgs.cudaPackages; [
         pkgs.linuxPackages_latest.nvidia_x11
         cudatoolkit
         cudnn
@@ -65,9 +73,9 @@
         libcurand
         libcusolver
         libcusparse
-      ]);
+      ]));
 
-      buildInputs = [ pkgs.cudaPackages.cudatoolkit pyEnv pkgs.jre ];
+      buildInputs = [ pyEnv pkgs.jre ] ++ lib.optionals useCuda [ pkgs.cudaPackages.cudatoolkit ];
     };
   });
 }
