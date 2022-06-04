@@ -4,6 +4,7 @@ model
 *.stats
 *.pck
 *.idx
+results.*
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

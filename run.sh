@@ -38,5 +38,15 @@ if [[ "$*" == *"test"* ]]; then
    rm -f test.stats test.out
    python3 predict.py model test.pck test.out
    python3 "$UTIL"/evaluator.py DDI "$BASEDIR"/data/test test.out | tee test.stats
+
+   UNCOMMITED=false
+   git diff-index --quiet HEAD -- || {
+      echo "WARNING: There are uncommited changes"
+      UNCOMMITED=true
+   }
+   COMMIT="$(git rev-parse HEAD)"
+   PERCENTAGE="$(grep "M.avg" test.stats | cut -f8)"
+
+   echo "$COMMIT,$PERCENTAGE,$UNCOMMITED" >> results.csv
 fi
 
