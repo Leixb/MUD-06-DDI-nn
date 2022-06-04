@@ -26,6 +26,7 @@ from tensorflow.keras.layers import (
 
 from dataset import Dataset
 from codemaps import Codemaps
+from transformer import TokenAndPositionEmbedding, TransformerBlock
 
 
 def build_network(codes):
@@ -37,8 +38,8 @@ def build_network(codes):
 
     # word input layer & embeddings
     inptW = Input(shape=(max_len,))
-    embW = Embedding(
-        input_dim=n_words, output_dim=100, input_length=max_len, mask_zero=False
+    embW = TokenAndPositionEmbedding(
+        maxlen=max_len, vocab_size=n_words, embed_dim=128
     )(inptW)
 
     lstm = LSTM(units=100, return_sequences=True)(embW)
