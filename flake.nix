@@ -74,7 +74,7 @@
         libcusparse
       ]));
 
-      buildInputs = [ pyEnv pkgs.jre ] ++ lib.optionals useCuda [ pkgs.cudaPackages.cudatoolkit ];
+      buildInputs = [ pyEnv pkgs.jre pkgs.graphviz ] ++ lib.optionals useCuda [ pkgs.cudaPackages.cudatoolkit ];
     };
   });
 }

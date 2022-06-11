@@ -28,6 +28,10 @@ if [[ "$*" == *"train"* ]]; then
     python3 train.py train.pck devel.pck model
 fi
 
+if [[ "$*" == *"plot"* ]]; then
+    python3 plot_model.py model
+fi
+
 if [[ "$*" == *"predict"* ]]; then
    rm -f devel.stats devel.out
    python3 predict.py model devel.pck devel.out
