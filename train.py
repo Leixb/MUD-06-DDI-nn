@@ -6,8 +6,6 @@ import os
 import random
 from contextlib import redirect_stdout
 
-import absl.logging
-
 from tensorflow.keras.utils import set_random_seed
 from tensorflow.keras import regularizers, Input
 from tensorflow.keras.models import Model
@@ -75,8 +73,6 @@ if __name__ == "__main__":
     if len(sys.argv) != 4:
         print("Usage: train.py <trainfile> <validationfile>  <modelname>")
         exit(1)
-
-    absl.logging.set_verbosity(absl.logging.ERROR)
 
     set_random_seed(2795991)
     os.environ['PYTHONHASHSEED'] = str(0)

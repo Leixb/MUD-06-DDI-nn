@@ -60,10 +60,6 @@
 
       inherit NLTK_DATA;
 
-      # Set tensorflow log level to ERROR to avoid spamming the logs
-      # with CUDA warnings.
-      TF_CPP_MIN_LOG_LEVEL = if useCuda then 3 else 0;
-
       LD_LIBRARY_PATH = lib.optionals useCuda (lib.makeLibraryPath (with pkgs.cudaPackages; [
         pkgs.linuxPackages_latest.nvidia_x11
         cudatoolkit
