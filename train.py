@@ -95,6 +95,8 @@ def build_network(codes):
 
     dense = Dense(n_labels * 4, activation="relu")(flat)
 
+    dense = Dropout(0.1)(dense)
+
     out = Dense(n_labels, activation="softmax")(dense)
 
     model = Model(inputs, out)
