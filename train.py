@@ -23,9 +23,27 @@ from tensorflow.keras.layers import (
     LSTM,
 )
 
+import numpy as np
+
 from dataset import Dataset
 from codemaps import Codemaps
 from transformer import TokenAndPositionEmbedding, TransformerBlock
+
+def load_glove_embedding(codes, embedding_dim=100):
+    glove_path = f"../glove.6B/glove.6B.{embedding_dim}d.txt"
+
+    embedding_matrix = np.zeros((codes.get_n_words(), embedding_dim))
+
+    with open(glove_path, "r") as f:
+        for line in f:
+            line = line.split()
+            word = line[0]
+            if word in codes.word_index:
+                idx = codes.word_index[word]
+                embedding_vector = np.array(line[1:], dtype=np.float32)
+                embedding_matrix[idx] = embedding_vector
+
+    return Embedding(codes.get_n_words(), embedding_dim, weights=[embedding_matrix], trainable=False, name="glove6B")
 
 
 def build_network(codes):
@@ -34,6 +52,7 @@ def build_network(codes):
     n_words = codes.get_n_words()
     max_len = codes.maxlen
     n_labels = codes.get_n_labels()
+    embedding_dim = 100
 
     # inputs
 
@@ -41,7 +60,10 @@ def build_network(codes):
 
     # embeddings
 
-    embeddings = list(map(TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=128), inputs))
+    embeddings = list(map(TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=embedding_dim), inputs))
+    embeddings += [load_glove_embedding(codes, embedding_dim=embedding_dim)(inputs[0])]
+
+    embeddings = list(map(Dropout(0.1), embeddings))
 
     # concatenate
     concatenated = Concatenate()(embeddings)
