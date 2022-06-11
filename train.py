@@ -41,7 +41,7 @@ def build_network(codes):
 
     # embeddings
 
-    embeddings = list(map(lambda x: TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=128)(x), inputs))
+    embeddings = list(map(TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=128), inputs))
 
     # concatenate
     concatenated = Concatenate()(embeddings)
