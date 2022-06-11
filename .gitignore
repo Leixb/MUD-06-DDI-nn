@@ -1,5 +1,5 @@
 plots
-model
+model*/
 .direnv
 *.out
 *.stats
