@@ -21,6 +21,6 @@ if __name__ == "__main__":
 
     print("Plotting model: {}".format(fname))
 
-    plot_model(model, to_file=output, show_shapes=True)
+    plot_model(model, rankdir="LR", to_file=output)
 
     print(model)
