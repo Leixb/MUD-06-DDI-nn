@@ -137,7 +137,7 @@ class Codemaps:
 
         # return encoded sequences
         # return [Xw,Xlw,Xl,Xp] (or just the subset expected by the NN inputs)
-        return Xw
+        return [Xw, Xlw, Xl, Xp]
 
     def encode_labels(self, data):
         "encode Y from given data"

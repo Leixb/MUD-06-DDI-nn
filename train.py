@@ -34,23 +34,28 @@ def build_network(codes):
     max_len = codes.maxlen
     n_labels = codes.get_n_labels()
 
-    # word input layer & embeddings
-    inptW = Input(shape=(max_len,))
-    embW = TokenAndPositionEmbedding(
-        maxlen=max_len, vocab_size=n_words, embed_dim=128
-    )(inptW)
+    # inputs
 
-    lstm = LSTM(units=100, return_sequences=True)(embW)
+    inputs = list(map(lambda x: Input(shape=(max_len,), name=f"input_{x}"), ["w", "lw", "l", "p"]))
 
-    conv = Conv1D(
-        filters=30, kernel_size=2, strides=1, activation="relu", padding="same"
-    )(lstm)
+    # embeddings
 
-    flat = Flatten()(conv)
+    embeddings = list(map(lambda x: TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=128)(x), inputs))
 
-    out = Dense(n_labels, activation="softmax")(flat)
+    # concatenate
+    concatenated = Concatenate()(embeddings)
 
-    model = Model(inptW, out)
+    lstm = Bidirectional(LSTM(units=128, return_sequences=True))(concatenated)
+
+    flat = Flatten()(lstm)
+
+    # dense layers
+
+    dense1 = Dense(n_labels * 4, activation="relu")(flat)
+
+    out = Dense(n_labels, activation="softmax")(dense1)
+
+    model = Model(inputs, out)
     model.compile(
         loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"]
     )
