@@ -6,6 +6,8 @@ import os
 import random
 from contextlib import redirect_stdout
 
+import matplotlib.pyplot as plt
+
 import tensorflow as tf
 from tensorflow.keras.utils import set_random_seed
 from tensorflow.keras import regularizers, Input
@@ -150,7 +152,27 @@ if __name__ == "__main__":
 
     # train model
     with redirect_stdout(sys.stderr):
-        model.fit(Xt, Yt, batch_size=32, epochs=10, validation_data=(Xv, Yv), verbose=1)
+        history = model.fit(Xt, Yt, batch_size=32, epochs=10, validation_data=(Xv, Yv), verbose=1)
+
+    if not os.path.exists("plots"):
+        os.makedirs("plots")
+
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_accuracy'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('plots/epoch-acc.pdf', bbox_inches='tight')
+    plt.clf()
+
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig('plots/epoch-loss.pdf', bbox_inches='tight')
 
     # save model and indexs
     model.save(modelname)
