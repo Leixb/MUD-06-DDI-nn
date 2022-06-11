@@ -54,17 +54,31 @@ def build_network(codes):
 
     # sizes
     n_words = codes.get_n_words()
+    n_lc_words = codes.get_n_lc_words()
+    n_rel_words = codes.get_n_rel()
+    n_lemma_words = codes.get_n_lemmas()
+    n_pos_words = codes.get_n_pos()
     max_len = codes.maxlen
     n_labels = codes.get_n_labels()
     embedding_dim = 100
 
     # inputs
 
-    inputs = list(map(lambda x: Input(shape=(max_len,), name=f"input_{x}"), ["w", "lw", "rel", "l", "p"]))
+    input_val = [
+        ("w", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=embedding_dim)),
+        ("lw", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_lc_words, embed_dim=embedding_dim)),
+        ("rel", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_rel_words, embed_dim=embedding_dim)),
+        ("l", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_lemma_words, embed_dim=embedding_dim)),
+        ("p", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_pos_words, embed_dim=embedding_dim)),
+    ]
+
+    input_names, input_embeddings = zip(*input_val)
+
+    inputs = list(map(lambda x: Input(shape=(max_len,), name=f"input_{x}"), input_names))
 
     # embeddings
 
-    embeddings = list(map(TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=embedding_dim), inputs))
+    embeddings = list(map(lambda i, f: f(i), inputs, input_embeddings))
     embeddings += [load_glove_embedding(codes.word_index, embedding_dim=embedding_dim)(inputs[0])]
     embeddings += [load_glove_embedding(codes.lc_word_index, embedding_dim=embedding_dim)(inputs[1])]
 
@@ -79,9 +93,9 @@ def build_network(codes):
 
     # dense layers
 
-    dense1 = Dense(n_labels * 4, activation="relu")(flat)
+    dense = Dense(n_labels * 4, activation="relu")(flat)
 
-    out = Dense(n_labels, activation="softmax")(dense1)
+    out = Dense(n_labels, activation="softmax")(dense)
 
     model = Model(inputs, out)
     model.compile(

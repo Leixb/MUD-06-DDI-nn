@@ -39,6 +39,7 @@ class Codemaps:
         lems = set([])
         pos = set([])
         labels = set([])
+        rel = set([])
 
         for s in data.sentences():
             for t in s["sent"]:
@@ -46,6 +47,7 @@ class Codemaps:
                 lc_words.add(t["lc_form"])
                 lems.add(t["lemma"])
                 pos.add(t["pos"])
+                rel.add(t["rel"])
             labels.add(s["type"])
 
         self.word_index = {w: i + 2 for i, w in enumerate(sorted(list(words)))}
@@ -64,6 +66,10 @@ class Codemaps:
         self.pos_index["PAD"] = 0  # Padding
         self.pos_index["UNK"] = 1  # Unseen PoS tags
 
+        self.rel_index = {s: i + 2 for i, s in enumerate(sorted(list(rel)))}
+        self.rel_index["PAD"] = 0  # Padding
+        self.rel_index["UNK"] = 1  # Unseen PoS tags
+
         self.label_index = {t: i for i, t in enumerate(sorted(list(labels)))}
 
     def __load(self, name):
@@ -75,6 +81,7 @@ class Codemaps:
         self.lemma_index = {}
         self.pos_index = {}
         self.label_index = {}
+        self.rel_index = {}
 
         with open(name + ".idx") as f:
             for line in f.readlines():
@@ -91,6 +98,8 @@ class Codemaps:
                     self.pos_index[k] = int(i)
                 elif t == "LABEL":
                     self.label_index[k] = int(i)
+                elif t == "REL":
+                    self.rel_index[k] = int(i)
 
     def save(self, name):
         "Save model and indexes"
@@ -108,6 +117,8 @@ class Codemaps:
                 print("LEMMA", key, self.lemma_index[key], file=f)
             for key in self.pos_index:
                 print("POS", key, self.pos_index[key], file=f)
+            for key in self.rel_index:
+                print("REL", key, self.rel_index[key], file=f)
 
     def __code(self, index, k):
         "get code for key k in given index, or code for unknown if not found"
@@ -135,13 +146,12 @@ class Codemaps:
         # encode and pad PoS
         Xp = self.__encode_and_pad(data, self.pos_index, "pos")
 
-        suf = self.__encode_and_pad(data, self.pos_index, "suffix")
-        pre = self.__encode_and_pad(data, self.pos_index, "preffix")
-        rel = self.__encode_and_pad(data, self.pos_index, "rel")
+        rel = self.__encode_and_pad(data, self.rel_index, "rel")
 
         # return encoded sequences
         # return [Xw,Xlw,Xl,Xp] (or just the subset expected by the NN inputs)
         return [Xw, Xlw, rel, Xl, Xp]
+        # return [Xw, Xlw, Xl, Xp]
 
     def encode_labels(self, data):
         "encode Y from given data"
@@ -164,19 +174,23 @@ class Codemaps:
         return len(self.label_index)
 
     def get_n_lemmas(self):
-        "get label index size"
+        "get lemmas index size"
         return len(self.lemma_index)
 
     def get_n_pos(self):
-        "get label index size"
+        "get pos index size"
         return len(self.pos_index)
+
+    def get_n_rel(self):
+        "get rel index size"
+        return len(self.rel_index)
 
     def word2idx(self, w):
         "get index for given word"
         return self.word_index[w]
 
     def lcword2idx(self, w):
-        "get index for given word"
+        "get index for given lowercase word"
 
         return self.lc_word_index[w]
 
