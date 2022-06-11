@@ -29,21 +29,23 @@ from dataset import Dataset
 from codemaps import Codemaps
 from transformer import TokenAndPositionEmbedding, TransformerBlock
 
-def load_glove_embedding(codes, embedding_dim=100):
+
+def load_glove_embedding(word2index: dict, embedding_dim: int = 100) -> Embedding:
     glove_path = f"../glove.6B/glove.6B.{embedding_dim}d.txt"
 
-    embedding_matrix = np.zeros((codes.get_n_words(), embedding_dim))
+    n_words = len(word2index)
+    embedding_matrix = np.zeros((n_words, embedding_dim))
 
     with open(glove_path, "r") as f:
-        for line in f:
-            line = line.split()
+        for _line in f:
+            line = _line.split()
             word = line[0]
-            if word in codes.word_index:
-                idx = codes.word_index[word]
+            if word in word2index:
+                idx = word2index[word]
                 embedding_vector = np.array(line[1:], dtype=np.float32)
                 embedding_matrix[idx] = embedding_vector
 
-    return Embedding(codes.get_n_words(), embedding_dim, weights=[embedding_matrix], trainable=False, name="glove6B")
+    return Embedding(n_words, embedding_dim, weights=[embedding_matrix], trainable=False)
 
 
 def build_network(codes):
@@ -56,12 +58,13 @@ def build_network(codes):
 
     # inputs
 
-    inputs = list(map(lambda x: Input(shape=(max_len,), name=f"input_{x}"), ["w", "lw", "l", "p"]))
+    inputs = list(map(lambda x: Input(shape=(max_len,), name=f"input_{x}"), ["w", "lw", "rel", "l", "p"]))
 
     # embeddings
 
     embeddings = list(map(TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=embedding_dim), inputs))
-    embeddings += [load_glove_embedding(codes, embedding_dim=embedding_dim)(inputs[0])]
+    embeddings += [load_glove_embedding(codes.word_index, embedding_dim=embedding_dim)(inputs[0])]
+    embeddings += [load_glove_embedding(codes.lc_word_index, embedding_dim=embedding_dim)(inputs[1])]
 
     embeddings = list(map(Dropout(0.1), embeddings))
 

@@ -135,9 +135,13 @@ class Codemaps:
         # encode and pad PoS
         Xp = self.__encode_and_pad(data, self.pos_index, "pos")
 
+        suf = self.__encode_and_pad(data, self.pos_index, "suffix")
+        pre = self.__encode_and_pad(data, self.pos_index, "preffix")
+        rel = self.__encode_and_pad(data, self.pos_index, "rel")
+
         # return encoded sequences
         # return [Xw,Xlw,Xl,Xp] (or just the subset expected by the NN inputs)
-        return [Xw, Xlw, Xl, Xp]
+        return [Xw, Xlw, rel, Xl, Xp]
 
     def encode_labels(self, data):
         "encode Y from given data"

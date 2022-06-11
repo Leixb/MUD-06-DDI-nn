@@ -82,6 +82,9 @@ class Dataset:
                                     "lc_form": tree.get_word(tk).lower(),
                                     "lemma": tree.get_lemma(tk),
                                     "pos": tree.get_tag(tk),
+                                    "suffix": tree.get_word(tk)[-3:],
+                                    "preffix": tree.get_word(tk)[:3],
+                                    "rel": tree.get_rel(tk),
                                 }
                             elif tk_ent == e1:
                                 token = {
@@ -89,6 +92,9 @@ class Dataset:
                                     "lc_form": "<DRUG1>",
                                     "lemma": "<DRUG1>",
                                     "pos": "<DRUG1>",
+                                    "suffix": "<1>",
+                                    "preffix": "<1>",
+                                    "rel": "<1>",
                                     "etype": entities[e1]["type"],
                                 }
                             elif tk_ent == e2:
@@ -97,6 +103,9 @@ class Dataset:
                                     "lc_form": "<DRUG2>",
                                     "lemma": "<DRUG2>",
                                     "pos": "<DRUG2>",
+                                    "suffix": "<2>",
+                                    "preffix": "<2>",
+                                    "rel": "<2>",
                                     "etype": entities[e2]["type"],
                                 }
                             else:
@@ -105,6 +114,9 @@ class Dataset:
                                     "lc_form": "<DRUG_OTHER>",
                                     "lemma": "<DRUG_OTHER>",
                                     "pos": "<DRUG_OTHER>",
+                                    "suffix": "<O>",
+                                    "preffix": "<O>",
+                                    "rel": "<O>",
                                     "etype": entities[tk_ent]["type"],
                                 }
 
