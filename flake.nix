@@ -34,6 +34,9 @@
         tensorflow-io-gcs-filesystem = super.tensorflow-io-gcs-filesystem.overridePythonAttrs ( old: { buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.libtensorflow ]; });
         tensorflow = addBuildInput { drv = "tensorflow"; input = "wheel"; inherit self super; };
         tensorflow-gpu = addBuildInput { drv = "tensorflow-gpu"; input = "wheel"; inherit self super; };
+        tensorflow-text = super.tensorflow-text.overridePythonAttrs ( old: {
+          buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.libtensorflow ];
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ self.wheel ]; });
         astunparse = addBuildInput { drv = "astunparse"; input = "wheel"; inherit self super; };
 
     });
