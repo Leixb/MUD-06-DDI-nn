@@ -94,7 +94,7 @@ class Dataset:
                             elif tk_ent == e2:
                                 token = {
                                     "form": "<DRUG2>",
-                                    "lc_form": "<DRUG1>",
+                                    "lc_form": "<DRUG2>",
                                     "lemma": "<DRUG2>",
                                     "pos": "<DRUG2>",
                                     "etype": entities[e2]["type"],
