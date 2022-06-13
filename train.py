@@ -20,6 +20,7 @@ from tensorflow.keras.layers import (
     MaxPool1D,
     Reshape,
     Concatenate,
+    Add,
     Flatten,
     Bidirectional,
     LSTM,
@@ -47,63 +48,47 @@ def load_glove_embedding(word2index: dict, embedding_dim: int = 100) -> Embeddin
                 embedding_vector = np.array(line[1:], dtype=np.float32)
                 embedding_matrix[idx] = embedding_vector
 
-    return Embedding(n_words, embedding_dim, weights=[embedding_matrix], trainable=False)
+    return Embedding(
+        n_words, embedding_dim, weights=[embedding_matrix], trainable=False
+    )
 
 
 def build_network(codes):
-
-    # sizes
-    n_words = codes.get_n_words()
-    n_lc_words = codes.get_n_lc_words()
-    n_rel_words = codes.get_n_rel()
-    n_lemma_words = codes.get_n_lemmas()
-    n_pos_words = codes.get_n_pos()
-    max_len = codes.maxlen
     n_labels = codes.get_n_labels()
+    max_len = codes.maxlen
     embedding_dim = 100
 
-    # inputs
-
     input_val = [
-        ("w", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_words, embed_dim=embedding_dim)),
-        ("lw", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_lc_words, embed_dim=embedding_dim)),
-        ("rel", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_rel_words, embed_dim=embedding_dim)),
-        ("l", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_lemma_words, embed_dim=embedding_dim)),
-        ("p", TokenAndPositionEmbedding(maxlen=max_len, vocab_size=n_pos_words, embed_dim=embedding_dim)),
+        ("w", codes.get_n_words()),
+        ("lw", codes.get_n_lc_words()),
+        ("rel", codes.get_n_rel()),
+        ("l", codes.get_n_lemmas()),
+        ("p", codes.get_n_pos()),
     ]
 
-    input_names, input_embeddings = zip(*input_val)
-
+    input_names, input_vocab_sz = zip(*input_val)
     inputs = list(map(lambda x: Input(shape=(max_len,), name=f"input_{x}"), input_names))
 
-    # embeddings
+    embeddings = list(
+        map(lambda input, vocab_size: TokenAndPositionEmbedding(
+            maxlen=max_len, vocab_size=vocab_size, embed_dim=embedding_dim
+        )(input), inputs, input_vocab_sz)
+    ) + [
+        load_glove_embedding(codes.word_index, embedding_dim=embedding_dim)(inputs[0]),
+        load_glove_embedding(codes.lc_word_index, embedding_dim=embedding_dim)(inputs[1]),
+    ]
+    embeddings = list(map(Dropout(0.2), embeddings))
 
-    embeddings = list(map(lambda i, f: f(i), inputs, input_embeddings))
-    embeddings += [load_glove_embedding(codes.word_index, embedding_dim=embedding_dim)(inputs[0])]
-    embeddings += [load_glove_embedding(codes.lc_word_index, embedding_dim=embedding_dim)(inputs[1])]
-
-    embeddings = list(map(Dropout(0.1), embeddings))
-
-    # concatenate
     concatenated = Concatenate()(embeddings)
-
     lstm = Bidirectional(LSTM(units=128, return_sequences=True))(concatenated)
-
     flat = Flatten()(lstm)
 
-    # dense layers
-
     dense = Dense(n_labels * 4, activation="relu")(flat)
-
-    dense = Dropout(0.1)(dense)
-
+    dense = Dropout(0.2)(dense)
     out = Dense(n_labels, activation="softmax")(dense)
 
     model = Model(inputs, out)
-    model.compile(
-        loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"]
-    )
-
+    model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
     return model
 
 
@@ -117,14 +102,15 @@ def build_network(codes):
 # -- Usage:  train.py ../data/Train ../data/Devel  modelname
 # --
 
+
 def set_memory_growth():
-    gpus = tf.config.list_physical_devices('GPU')
+    gpus = tf.config.list_physical_devices("GPU")
     if gpus:
         try:
             # Currently, memory growth needs to be the same across GPUs
             for gpu in gpus:
                 tf.config.experimental.set_memory_growth(gpu, True)
-                logical_gpus = tf.config.list_logical_devices('GPU')
+                logical_gpus = tf.config.list_logical_devices("GPU")
                 print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
         except RuntimeError as e:
             # Memory growth must be set before GPUs have been initialized
@@ -140,7 +126,7 @@ if __name__ == "__main__":
         exit(1)
 
     set_random_seed(2795991)
-    os.environ['PYTHONHASHSEED'] = str(0)
+    os.environ["PYTHONHASHSEED"] = str(0)
 
     # directory with files to process
     trainfile = sys.argv[1]
@@ -169,27 +155,29 @@ if __name__ == "__main__":
 
     # train model
     with redirect_stdout(sys.stderr):
-        history = model.fit(Xt, Yt, batch_size=32, epochs=10, validation_data=(Xv, Yv), verbose=1)
+        history = model.fit(
+            Xt, Yt, batch_size=32, epochs=10, validation_data=(Xv, Yv), verbose=1
+        )
 
     if not os.path.exists("plots"):
         os.makedirs("plots")
 
-    plt.plot(history.history['accuracy'])
-    plt.plot(history.history['val_accuracy'])
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('plots/epoch-acc.pdf', bbox_inches='tight')
+    plt.plot(history.history["accuracy"])
+    plt.plot(history.history["val_accuracy"])
+    plt.title("model accuracy")
+    plt.ylabel("accuracy")
+    plt.xlabel("epoch")
+    plt.legend(["train", "test"], loc="upper left")
+    plt.savefig("plots/epoch-acc.pdf", bbox_inches="tight")
     plt.clf()
 
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig('plots/epoch-loss.pdf', bbox_inches='tight')
+    plt.plot(history.history["loss"])
+    plt.plot(history.history["val_loss"])
+    plt.title("model loss")
+    plt.ylabel("loss")
+    plt.xlabel("epoch")
+    plt.legend(["train", "test"], loc="upper left")
+    plt.savefig("plots/epoch-loss.pdf", bbox_inches="tight")
 
     # save model and indexs
     model.save(modelname)
